@@ -3,7 +3,8 @@ const ContactsRepository = require('../repositories/ConstactsRepository');
 class ContactsController {
   // mostra todos os contatos
   async index(req, res) {
-    const contacts = await ContactsRepository.findAll();
+    const { orderBy } = req.query;
+    const contacts = await ContactsRepository.findAll(orderBy);
 
     res.json(contacts);
   }
@@ -15,7 +16,7 @@ class ContactsController {
     const contact = await ContactsRepository.findById(id);
 
     if (!contact) {
-      return res.sendStatus(404).json({ message: 'Contact Not Found' });
+      return res.status(404).json({ message: 'Contact Not Found' });
     }
 
     res.json(contact);
@@ -28,13 +29,13 @@ class ContactsController {
     } = req.body;
 
     if (!name) {
-      res.sendStatus(400).json({ message: 'Name is required' });
+      return res.status(400).json({ message: 'Name is required' });
     }
 
     const emailExist = await ContactsRepository.findByEmail(email);
 
     if (emailExist) {
-      res.sendStatus(400).json({ message: 'This email is already in use' });
+      return res.status(400).json({ error: 'This email is already in use' });
     }
 
     const contact = await ContactsRepository.create({
@@ -60,7 +61,7 @@ class ContactsController {
     const contactEmail = await ContactsRepository.findByEmail(email);
 
     if (contactEmail && contactEmail.id !== id) {
-      res.sendStatus(400).json({ message: 'This email is already in use' });
+      res.status(400).json({ message: 'This email is already in use' });
     }
 
     const contact = await ContactsRepository.update(id, {
@@ -77,7 +78,7 @@ class ContactsController {
     const contact = await ContactsRepository.findById(id);
 
     if (!contact) {
-      return res.sendStatus(404).json({ message: 'Contact Not Found' });
+      return res.staus(404).json({ message: 'Contact Not Found' });
     }
 
     await ContactsRepository.delete(id);

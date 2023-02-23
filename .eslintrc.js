@@ -18,4 +18,5 @@ module.exports = {
   settings: {
     'import/core-modules': ['uuid'],
   },
+  'import/no-extraneous-dependencies': ['error', { devDependencies: false, optionalDependencies: false, peerDependencies: false }],
 };
