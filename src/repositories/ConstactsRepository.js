@@ -1,34 +1,25 @@
-const { v4 } = require('uuid');
-const { update } = require('../controllers/ContactController');
 const db = require('../database');
-
-let contacts = [
-  {
-    id: v4(),
-    name: 'Guilherme',
-    email: 'guilherme@email.com',
-    phone: '31203828',
-    category_id: v4(),
-  },
-  {
-    id: v4(),
-    name: 'Luiz',
-    email: 'luiz@email.com',
-    phone: '311252828',
-    category_id: v4(),
-  },
-];
 
 class ContactsRepository {
   async findAll(orderBy = 'ASC') {
     const direction = orderBy.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-    const rows = await db.query(`SELECT * FROM contacts ORDER BY name ${direction}`);
+    const rows = await db.query(`
+    SELECT contacts.*, categories.name AS category_name
+     FROM contacts
+     LEFT JOIN categories ON categories.id = contacts.category_id
+     ORDER BY contacts.name ${direction}
+    `);
 
     return rows;
    }
 
   async findById(id) {
-    const [row] = await db.query('SELECT * FROM contacts WHERE id = $1', [id]);
+    const [row] = await db.query(`
+    SELECT contacts.*, categories.name AS category_name
+    FROM contacts
+    LEFT JOIN contacts ON categories.id = category_id
+    WHERE contacts, id = $1
+    `, [id]);
 
     return row;
   }
@@ -61,20 +52,12 @@ class ContactsRepository {
 
     return row;
   }
-};
 
-  //     contacts = contacts.map((contact) => (
-  //       contact.id === id ? updatedContact : contact
-  //     ));
+  async delete(id) {
+    const deleteOp = db.query('DELETE FROM contacts WHERE id = $1', [id]);
+    return deleteOp;
+  }
+}
 
-  //     resolve(updatedContact);
-  //   });
-  // }
 
-  // delete(id) ;{
-  //   return new Promise((resolve) => {
-  //     contacts.filter((contact) => contact.id !== id);
-  //     resolve();
-  //   });
-  // }
 module.exports = new ContactsRepository();
